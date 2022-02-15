@@ -1,0 +1,8 @@
+let x 10
+let y 40.2
+let z "Message"
+let w [| (0 + i32) (-4) 86 504 32 |]
+let o [ 'c' 'e' 'l' 'l' ]
+inlineVariable sdlWindow external false
+inlineC "void* sdlWindow = NULL;"
+let players ({{ let position [| (0+f32) 0 10 |] let health 100 }} + #Player) * 32

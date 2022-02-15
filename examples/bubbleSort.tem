@@ -1,0 +1,26 @@
+inlineCHeaders
+
+unary bubbleSort p_list {
+    noCompile {
+        range ListRange 0 ((p_list ## null) - 2)
+    }
+    let i 0 + #ListRange
+    mlet r_list p_list
+    iterate (i) (r_list){
+        iterate (i) (r_list) {
+            let current r_list @ item
+            let next r_list @ (item + 1)
+            match (current < next) (r_list) {
+                false{
+                    set (r_list @ item) next
+                    set (r_list @ (item+1)) current
+                }
+            }
+        }
+    }
+    return r_list
+}
+
+let arr [| (0+ i32) 4 3 53 0964 80934 (-4530) 53 |]
+
+let new_arr arr :bubbleSort

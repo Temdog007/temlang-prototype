@@ -1,0 +1,26 @@
+inlineCHeaders
+
+unary fib p_value {
+    return {= p_value
+        0 0
+        1 1
+        {
+            mlet n p_value
+            mlet a 0
+            mlet b 1
+            while ( n > 1 ) ( n a b ) {
+                let temp a
+                set a b
+                set b temp + b
+                set n n - 1
+            }
+            let r_value b
+            return r_value
+        }
+    =}
+}
+
+let result 10 :fib
+
+// Constant to evaluate at compile time
+constant constant_result 10 :fib

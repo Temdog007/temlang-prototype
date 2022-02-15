@@ -1,0 +1,12 @@
+inlineC "
+#include <include/DefaultExternalFunctions.h>
+"
+
+resource Player {
+    [3 f32] position
+    u8 health
+}
+p {
+    inlineC "// Cleanup player
+    "
+}

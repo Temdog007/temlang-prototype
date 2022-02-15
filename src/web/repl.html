@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>TemLang</title>
+    <link rel="icon" href="https://www.temware.site/favicon.ico" type="image/x-icon" />
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .loadingScreen {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            width: 75vmin;
+            height: 75vmin;
+            transform: translate(-50%, -50%);
+        }
+
+        #left {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 48vw;
+            height: 98vh;
+            padding-left: 1vw;
+            padding-right: 1vw;
+            padding-top: 1vh;
+            padding-bottom: 1vh;
+            background-color: tan;
+        }
+
+        #right {
+            position: fixed;
+            left: 50%;
+            top: 0px;
+            width: 48vw;
+            height: 98vh;
+            padding-left: 1vw;
+            padding-right: 1vw;
+            padding-top: 1vh;
+            padding-bottom: 1vh;
+            background-color: antiquewhite;
+            overflow: scroll;
+        }
+
+        #textareas {
+            width: 100%;
+            height: 75%;
+            display: grid;
+            grid-template-columns: 10% 90%;
+            grid-template-rows: 90% 90%;
+            column-gap: 1vmin;
+        }
+
+        #options {
+            width: 100%;
+            height: 25%;
+        }
+
+        #lineNumbers {
+            overflow: hidden;
+            /* background-color: lightgray; */
+        }
+
+        #textareas textarea {
+            resize: none;
+            padding: 1vmin;
+            height: 100%;
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: scroll;
+        }
+    </style>
+    <script type="application/javascript" src="repl.js"></script>
+    <script type='application/javascript'>
+        let color = "black";
+        function writeToRight(message, isJson) {
+            message = message.replace(' ', '&nbsp;');
+            message = message.replace('\t', '&emsp;');
+            message = message.replace('<', '&lt');
+            message = message.replace('>', '&gt');
+            let d = document.getElementById("right");
+
+            let n = document.createElement(isJson ? "pre" : "code");
+            n.innerHTML = message;
+            n.style.color = color;
+            d.appendChild(n);
+
+            let b = document.createElement('br');
+            d.appendChild(b);
+
+            d.scrollTop = d.scrollHeight;
+        }
+        function shouldFormat() {
+            let frm = document.getElementById("chkFormat");
+            return frm !== null && frm.checked;
+        }
+        function updateLineNumbers(txt) {
+            lineNumbers.value = "";
+            const length = txt.value.split("\n").length;
+            for (var i = 0; i < length; ++i) {
+                lineNumbers.value += `${i + 1}\n`;
+            }
+        }
+        let textHistory = [];
+        Module({}).then(mod => {
+            document.title = mod.UTF8ToString(mod._getVersionString());
+
+            mod._initialize();
+            let id = 0;
+            function fadeOut() {
+                let o = document.getElementById("Loading");
+                const varOp = (parseFloat(o.style.opacity) || 1) - 0.01;
+                if (varOp < 0.1) {
+                    clearInterval(id);
+                    o.style.visibility = "collapse";
+                    o.remove();
+                } else {
+                    o.style.opacity = `${varOp}`;
+                    o.style.filter = `alpha(opacity=${varOp * 100})`;
+                }
+            }
+            id = setInterval(fadeOut, 10);
+
+            function passString(str, func) {
+                let ptr = mod.allocate(mod.intArrayFromString(str), mod.ALLOC_NORMAL);
+                let result = func(ptr);
+                mod._free(ptr);
+                return result;
+            }
+
+            function runRepl() {
+                passString(txt.value, mod._replExecute);
+            }
+
+            function runCompiler() {
+                passString(txt.value, mod._compile);
+            }
+
+            function runExecute() {
+                let selection = document.getElementById("execution");
+                if (selection.selectedIndex === 0) {
+                    runRepl();
+                } else {
+                    runCompiler();
+                }
+                let clearBox = document.getElementById("chkClear");
+                if (clearBox.checked) {
+                    txt.value = "";
+                }
+            }
+
+            function exampleSelected() {
+                let selection = document.getElementById("example");
+                if (selection.selectedIndex === 0) {
+                    return;
+                }
+                let s = null;
+                if (selection.selectedIndex === 1) {
+                    s = "examples/fib.tem";
+                } else if (selection.selectedIndex === 2) {
+                    s = "examples/fizzBuzz.tem";
+                }
+                else if (selection.selectedIndex === 3) {
+                    s = "examples/bubbleSort.tem";
+                } else if (selection.selectedIndex === 4) {
+                    s = "examples/test.tem";
+                }
+                let success = false;
+                if (s !== null) {
+                    success = passString(s, mod._getExample);
+                }
+                if (!success) {
+                    selection.selectedIndex = 0;
+                    alert("Failed to get example");
+                }
+            }
+
+            let txt = document.getElementById("userInput");
+            txt.addEventListener("keypress", function (evt) {
+                if (evt.keyCode === 13) {
+                    let box = document.getElementById("chkExecuteType");
+                    if (box.checked) {
+                        setTimeout(runExecute, 1);
+                    }
+                }
+            });
+            txt.addEventListener("keydown", function (evt) {
+                if (evt.keyCode === 9) {
+                    const start = txt.selectionStart;
+                    const end = txt.selectionEnd;
+
+                    txt.value = txt.value.substring(0, start)
+                        + "\t" +
+                        txt.value.substring(end);
+                    txt.selectionStart = txt.selectionEnd = start + 1;
+                    evt.preventDefault();
+                } else if (evt.keyCode === 90 && evt.ctrlKey) {
+                    if (textHistory.length > 0) {
+                        txt.value = textHistory.pop();
+                    }
+                    evt.preventDefault();
+                }
+            }, false);
+            txt.addEventListener("input", function (evt) {
+                if (txt.value.length > 0) {
+                    textHistory.push(txt.value);
+                    updateLineNumbers(txt);
+                }
+            });
+
+            let lineNumbers = document.getElementById("lineNumbers");
+            txt.addEventListener("scroll", function (evt) {
+                lineNumbers.scrollTop = txt.scrollTop;
+            });
+
+            let button = document.getElementById("compile");
+            button.addEventListener("click", runExecute);
+
+            button = document.getElementById("reset");
+            button.addEventListener("click", mod._reset);
+
+            let e = document.getElementById("example");
+            e.addEventListener("change", exampleSelected);
+        });
+    </script>
+</head>
+
+<body>
+    <img src="/img/simple_logo_with_loading.png" class="loadingScreen" id="Loading" alt="Loading" />
+    <div id="left">
+        <div id="textareas">
+            <textarea id="lineNumbers" spellcheck="false" readonly="True"></textarea>
+            <textarea placeholder="Write TemLang code here..." id="userInput" spellcheck="false"></textarea><br>
+        </div>
+        <div id="options">
+            <select id="execution">
+                <option>REPL</option>
+                <option>Compile</option>
+            </select>
+            <button id="compile">Execute</button>
+            <button id="reset">Reset</button>
+            <br>
+            <label for="runOnEnter">
+                <input id="chkExecuteType" type="checkbox" name="runOnEnter" checked="yes">Execute on enter
+            </label>
+            <br>
+            <label for="clearOnEnter">
+                <input id="chkClear" type="checkbox" name="clearOnEnter" checked="yes">Clear on execute
+            </label>
+            <br>
+            <label for="formatCode">
+                <input id="chkFormat" type="checkbox" name="formatCode">Format output
+            </label>
+            <br>
+            <select id="example">
+                <option>--Select an example--</option>
+                <option>Fibonacci</option>
+                <option>FizzBuzz</option>
+                <option>Bubble Sort</option>
+                <option>Complex Example</option>
+            </select>
+        </div>
+    </div>
+    <div id="right"></div>
+</body>
+
+</html>

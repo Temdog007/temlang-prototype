@@ -1,0 +1,292 @@
+inlineCHeaders
+
+range myNum (-100) 1000
+
+range small 0 10
+
+struct Foo {
+    u32 x
+    f32 y
+    [0 u8] bytes // 0 = list
+    [16 u16] guid // 16 = array
+    string z
+    #color c
+    #state s
+}
+
+range guidRange 1 16
+nullary makeFoo {
+    let f {{
+        let x 8
+        let y 042.213
+        let z "Hello World"
+        // let z 20
+        let c "blue" + #color
+        let s "walking" + #state
+        
+        let guid {
+            mlet l []u16
+            mlet i 1 + #guidRange
+            iterate i (l) {
+                append l (0 + u16)
+            }
+            ToArray l r_g
+            return r_g
+        }
+        let bytes [ (0 + u8) ]
+    }}
+    let r_f2 f + #Foo
+    return r_f2
+}
+
+enum color {
+    red green blue
+}
+
+flag state {
+    walking running sleeping
+}
+
+variant Bar {
+    u32 x
+    string y
+    f64 z
+    null w
+}
+
+unary checkBar p_bar {
+    match p_bar () {
+        x {
+            print "Got x: " x
+        }
+        y {
+            print "Got y: " y
+        }
+        z {
+            print "Got z: " z
+        }
+    }
+}
+
+unary checkColor p_c {
+    mlet k 0 + i32
+    match p_c (k){
+        "red" {
+            set k 40
+        }
+        "green" {
+            set k 5032 - 430
+        }
+        "blue" {
+            set k -5
+        }
+    }
+    return k
+}
+
+
+struct Nested {
+    #Temp t
+}
+
+struct Temp{
+    u8 x
+    bool b
+}
+
+struct SubFoo{
+    #Foo foo
+    #Bar bar
+    #myNum num
+}
+
+unary foo4 p_a {
+    print "Called foo4"
+    return p_a
+}
+
+nullary foo0 {
+    return 452
+}
+
+unary foo1 p_a {
+    let r_a p_a
+    return r_a
+}
+
+binary foo2 p_a p_b {
+    return p_a + p_b
+}
+
+unary foo3 p_b {
+    return p_b + 402
+}
+
+procedure fooProc ( numArray ) {
+    return null :printList numArray
+}
+
+inlineFile "examples/fib.tem"
+
+inlineCFile "examples/test.c"
+
+inlineVariable sdlWindow external true
+
+// Inline as a string
+inlineText todoText "examples/test.c"
+
+// Inline as an array of bytes
+inlineData outputData "examples/test.c"
+
+let x 1000
+let y 20
+let z x + y
+constant cx :fib 1056
+
+let xresult x < y
+
+let w {
+    let x 40
+    let y 0975.3
+    return x / y
+}
+
+let w2 05.02 % 042
+
+let bl true
+let bl2 false
+let bl3 bl & bl2
+let bl4 bl ! null
+let bl5 bl3 | bl4
+let bl6 bl2 ^ bl3
+
+let hello "Hello"
+let world "World"
+let message hello + " " + world
+
+mlet mMessage message
+append mMessage 'c'
+remove mMessage 3
+pop mMessage
+empty mMessage
+
+mlet c 0 + i32
+
+mlet e "red" + #color
+
+mlet s "walking" + #state
+
+mlet s2 s
+
+let flt 10.53
+round flt u32 xfd
+
+on s2 sleeping
+off s2 running
+toggle s2 sleeping
+all s2
+clear s2
+
+/*
+    Multiline comment
+
+    /* Nested comment */
+*/
+
+let foo null :makeFoo
+let foos foo * 10
+mlet f foo
+
+mlet temps ({{ let x 900 let b true }} + #Temp) * 10
+
+set temps.3 {{ let x -403 }}
+
+let wxs temps.5
+
+let n {{ let t {{ let x 1598740 let b false }} + #Temp }} + #Nested
+
+let bar #Bar + {{ let x 10 }}
+
+let f432 {{ let foo :makeFoo null let bar {{ let w null}} + #Bar let num 4 }} + #SubFoo
+
+mlet b bar
+
+mlet b2 {{ let z 042.40269 }} + #Bar
+
+set b2 {{ let y "A message" }} + #Bar
+
+set b2 {{ let w null }} + #Bar
+
+mlet numList [(1 + u32) 2 3 4 5]
+mlet numArray [| (1 + u32) 3 4 5 6 4 |]
+
+mlet numListCopy numList
+mlet numArrayCopy numArray
+
+insert numListCopy 3 (5031 + u32)
+remove numListCopy 1
+swapremove numListCopy 0
+pop numListCopy
+empty numListCopy
+
+while ( c < 10 ) ( c ) {
+    set c c + 1
+}
+
+until ( c < 0 ) ( c ) {
+    set c c - 1
+}
+
+unary printList p_list {
+    mlet x 0
+    iterate p_list (x) {
+        print "Index " index "\n" "Item" item
+        set x x + index
+    }
+}
+
+match x ( c ) {
+    11 {
+        set c 40
+    }
+    {
+        set c 502
+    }
+}
+
+inline "let mixinValue -607945.32402"
+
+let fibResult 10 :fib null
+
+mlet u32Num 0 + u32
+iterate u32Num (u32Num) {
+    mlet r_doContinue true
+    let unusedString "This string should be cleaned up"
+    match (item > 1000) (u32Num r_doContinue) {
+        true {
+            set r_doContinue false
+        }
+        {
+            set u32Num u32Num + item * 5 / 4
+        }
+    }
+    return r_doContinue
+}
+
+// mixin "let 43 askl;f420"
+
+inlineC "MAKE_FULL_LIST(Foo)"
+inlineC "MAKE_FULL_LIST(Bar)"
+
+variant OptionList{
+    [0 #Foo] foos
+    [0 #Bar] bars
+    null none
+}
+
+
+binary biggerPlus9 p_a p_b {
+    ifreturn (p_a > b) (p_a + 9)
+    return (p_b + 9)
+}
+

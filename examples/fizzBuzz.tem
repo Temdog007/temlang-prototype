@@ -1,0 +1,41 @@
+inlineCHeaders
+
+unary fizzBuzz p_n {
+    mlet n 1
+    mlet r_outputs []string
+    while ( n < p_n or n = p_n ) (n r_outputs) {
+        let mod_3 (n % 3) = 0
+        let mod_5 (n % 5) = 0
+        match (mod_3 = mod_5) (r_outputs) {
+            true {
+                match (mod_3) (r_outputs) {
+                    true {
+                        append r_outputs "Fizz Buzz"
+                    }
+                    {
+                        append r_outputs (n + string)
+                    }
+                }
+            }
+            {
+                match (mod_3) (r_outputs) {
+                    true {
+                        append r_outputs "Fizz"
+                    }
+                    {
+                        append r_outputs "Buzz"
+                    }
+                }
+            }
+        }
+        set n n + 1
+    }
+    return r_outputs
+}
+
+let results 100 :fizzBuzz
+inlineC "
+    for(uint32_t i = 0; i < results.used; ++i){
+        puts(results.buffer[i].buffer);
+    }
+"
