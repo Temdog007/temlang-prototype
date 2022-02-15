@@ -20,4 +20,4 @@ build_job:
   artifacts:
     expire_in: 265 days
     paths:
-      build
+      [build]
