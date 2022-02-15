@@ -4,7 +4,7 @@ See [website](https://www.temware.site/TemLang) for more information.
 
 ## Sample
 
-Try it out [here](https://www.temware.site/TemLang).
+Try it out [here](https://www.temware.site/TemLang/repl.html).
 
 ## Building
 
@@ -27,7 +27,7 @@ Requires [Emscripten](https://emscripten.org/).
 
 ```bash
 emcc -Iinclude/ src/repl.c \
-    -o build/repl.js -lm -s MODULARIZE=1 \
+    -lm -s MODULARIZE=1 \
     -s EXPORTED_FUNCTIONS='["_malloc","_getVersionString", "_reset", "_initialize", "_replExecute", "_getExample"]' \
     -s EXPORTED_RUNTIME_METHODS='["UTF8ToString", "stringToUTF8", "intArrayFromString","ALLOC_NORMAL","allocate"]' \
     --js-library src/web/repl_lib.js \
